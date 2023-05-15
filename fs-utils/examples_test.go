@@ -1,20 +1,4 @@
-# go-writable-fs
-
-[![GoDoc](https://godoc.org/github.com/thewizardplusplus/go-writable-fs?status.svg)](https://godoc.org/github.com/thewizardplusplus/go-writable-fs)
-[![Go Report Card](https://goreportcard.com/badge/github.com/thewizardplusplus/go-writable-fs)](https://goreportcard.com/report/github.com/thewizardplusplus/go-writable-fs)
-
-## Installation
-
-```
-$ go get github.com/thewizardplusplus/go-writable-fs@latest
-```
-
-## Examples
-
-`fsutils.ReadDirEntriesByKind()`:
-
-```go
-package main
+package fsutils_test
 
 import (
 	"fmt"
@@ -24,7 +8,7 @@ import (
 	fsutils "github.com/thewizardplusplus/go-writable-fs/fs-utils"
 )
 
-func main() {
+func ExampleReadDirEntriesByKind() {
 	mapFS := fstest.MapFS{
 		"directory-1/file-1.1":                 &fstest.MapFile{},
 		"directory-1/file-1.2":                 &fstest.MapFile{},
@@ -50,10 +34,3 @@ func main() {
 	// file-2.1
 	// file-2.2
 }
-```
-
-## License
-
-The MIT License (MIT)
-
-Copyright &copy; 2023 thewizardplusplus
