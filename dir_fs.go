@@ -16,3 +16,7 @@ func NewDirFS(baseDir string) DirFS {
 		baseDir:    baseDir,
 	}
 }
+
+func (dfs DirFS) Open(path string) (fs.File, error) {
+	return dfs.innerDirFS.Open(path)
+}
