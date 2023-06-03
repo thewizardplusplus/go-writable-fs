@@ -29,15 +29,36 @@ func (dfs DirFS) Mkdir(path string, permissions fs.FileMode) error {
 		return err
 	}
 
-	err := os.Mkdir(filepath.Join(dfs.baseDir, path), permissions)
+	err := os.Mkdir(dfs.joinWithBaseDir(path), permissions)
 	if err != nil {
 		// restore the original path instead of its joined version
-		err.(*fs.PathError).Path = path
+		updatePathInPathError(err, path)
 
 		return err
 	}
 
 	return nil
+}
+
+func (dfs DirFS) Create(path string) (WritableFile, error) {
+	// use the "open" operation, since the `os.Create()` uses it
+	if err := checkPath(path, "open"); err != nil {
+		return nil, err
+	}
+
+	file, err := os.Create(dfs.joinWithBaseDir(path))
+	if err != nil {
+		// restore the original path instead of its joined version
+		updatePathInPathError(err, path)
+
+		return nil, err
+	}
+
+	return file, nil
+}
+
+func (dfs DirFS) joinWithBaseDir(path string) string {
+	return filepath.Join(dfs.baseDir, path)
 }
 
 // This check is made for consistency with the implementation of `os.DirFS()`.
@@ -53,4 +74,8 @@ func checkPath(path string, operation string) error {
 	}
 
 	return nil
+}
+
+func updatePathInPathError(err error, path string) {
+	err.(*fs.PathError).Path = path
 }
