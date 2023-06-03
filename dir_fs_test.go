@@ -439,3 +439,125 @@ func TestDirFS_CreateExcl(test *testing.T) {
 		})
 	}
 }
+
+func TestDirFS_Remove(test *testing.T) {
+	type args struct {
+		path string
+	}
+
+	for _, data := range []struct {
+		name        string
+		preparation func(test *testing.T, tempDir string)
+		args        args
+		want        func(test *testing.T, tempDir string)
+		wantErr     func(test *testing.T, err error)
+	}{
+		{
+			name: "success/file",
+			preparation: func(test *testing.T, tempDir string) {
+				path := filepath.Join(tempDir, "path")
+				err := os.WriteFile(path, []byte("content"), 0666)
+				require.NoError(test, err)
+			},
+			args: args{
+				path: "path",
+			},
+			want: func(test *testing.T, tempDir string) {
+				path := filepath.Join(tempDir, "path")
+				assert.NoFileExists(test, path)
+			},
+			wantErr: func(test *testing.T, err error) {
+				assert.NoError(test, err)
+			},
+		},
+		{
+			name: "success/empty directory",
+			preparation: func(test *testing.T, tempDir string) {
+				path := filepath.Join(tempDir, "path")
+				err := os.Mkdir(path, 0700)
+				require.NoError(test, err)
+			},
+			args: args{
+				path: "path",
+			},
+			want: func(test *testing.T, tempDir string) {
+				path := filepath.Join(tempDir, "path")
+				assert.NoDirExists(test, path)
+			},
+			wantErr: func(test *testing.T, err error) {
+				assert.NoError(test, err)
+			},
+		},
+		{
+			name:        "error/invalid path",
+			preparation: func(_ *testing.T, _ string) {},
+			args: args{
+				path: "/invalid-path",
+			},
+			want: func(_ *testing.T, _ string) {},
+			wantErr: func(test *testing.T, err error) {
+				wantPath := "/invalid-path"
+				wantErr := &fs.PathError{Op: "remove", Path: wantPath, Err: fs.ErrInvalid}
+				assert.Equal(test, wantErr, err)
+			},
+		},
+		{
+			name:        "error/non-existent path",
+			preparation: func(_ *testing.T, _ string) {},
+			args: args{
+				path: "non-existent path",
+			},
+			want: func(_ *testing.T, _ string) {},
+			wantErr: func(test *testing.T, err error) {
+				if !assert.IsType(test, (*fs.PathError)(nil), err) {
+					return
+				}
+
+				typedErr := err.(*fs.PathError)
+				assert.Equal(test, "remove", typedErr.Op)
+				assert.Equal(test, "non-existent path", typedErr.Path)
+				assert.ErrorIs(test, typedErr.Err, fs.ErrNotExist)
+			},
+		},
+		{
+			name: "error/non-empty directory",
+			preparation: func(test *testing.T, tempDir string) {
+				dirPath := filepath.Join(tempDir, "non-empty-directory")
+				err := os.Mkdir(dirPath, 0700)
+				require.NoError(test, err)
+
+				filePath := filepath.Join(dirPath, "path")
+				err = os.WriteFile(filePath, []byte("content"), 0666)
+				require.NoError(test, err)
+			},
+			args: args{
+				path: "non-empty-directory",
+			},
+			want: func(_ *testing.T, _ string) {},
+			wantErr: func(test *testing.T, err error) {
+				if !assert.IsType(test, (*fs.PathError)(nil), err) {
+					return
+				}
+
+				typedErr := err.(*fs.PathError)
+				assert.Equal(test, "remove", typedErr.Op)
+				assert.Equal(test, "non-empty-directory", typedErr.Path)
+				assert.ErrorIs(test, typedErr.Err, syscall.ENOTEMPTY)
+			},
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			tempDir, err := os.MkdirTemp("", "test-*")
+			require.NoError(test, err)
+			defer os.RemoveAll(tempDir)
+
+			data.preparation(test, tempDir)
+
+			dfs := NewDirFS(tempDir)
+			err = dfs.Remove(data.args.path)
+
+			data.want(test, tempDir)
+			data.wantErr(test, err)
+		})
+	}
+}

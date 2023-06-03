@@ -77,6 +77,21 @@ func (dfs DirFS) CreateExcl(path string) (WritableFile, error) {
 	return file, nil
 }
 
+func (dfs DirFS) Remove(path string) error {
+	if err := checkPath(path, "remove"); err != nil {
+		return err
+	}
+
+	if err := os.Remove(dfs.joinWithBaseDir(path)); err != nil {
+		// restore the original path instead of its joined version
+		updatePathInPathError(err, path)
+
+		return err
+	}
+
+	return nil
+}
+
 func (dfs DirFS) joinWithBaseDir(path string) string {
 	return filepath.Join(dfs.baseDir, path)
 }
