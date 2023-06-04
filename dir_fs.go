@@ -24,6 +24,12 @@ func (dfs DirFS) Open(path string) (fs.File, error) {
 	return dfs.innerDirFS.Open(path)
 }
 
+// Method `Stat()` is added for consistency with the implementation
+// of `os.DirFS()`, which returns an instance that implements `fs.StatFS`.
+func (dfs DirFS) Stat(path string) (fs.FileInfo, error) {
+	return dfs.innerDirFS.(fs.StatFS).Stat(path)
+}
+
 func (dfs DirFS) Mkdir(path string, permissions fs.FileMode) error {
 	if err := checkPath(path, "mkdir"); err != nil {
 		return err

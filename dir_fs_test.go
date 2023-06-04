@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"syscall"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -108,6 +109,121 @@ func TestDirFS_Open(test *testing.T) {
 			if got != nil {
 				defer got.Close()
 			}
+
+			data.want(test, got)
+			data.wantErr(test, tempDir, err)
+		})
+	}
+}
+
+func TestDirFS_Stat(test *testing.T) {
+	type args struct {
+		path string
+	}
+
+	for _, data := range []struct {
+		name        string
+		preparation func(test *testing.T, tempDir string)
+		args        args
+		want        func(test *testing.T, fileInfo fs.FileInfo)
+		wantErr     func(test *testing.T, tempDir string, err error)
+	}{
+		{
+			name: "success/file",
+			preparation: func(test *testing.T, tempDir string) {
+				path := filepath.Join(tempDir, "path")
+				err := os.WriteFile(path, []byte("content"), 0666)
+				require.NoError(test, err)
+			},
+			args: args{
+				path: "path",
+			},
+			want: func(test *testing.T, fileInfo fs.FileInfo) {
+				if !assert.NotNil(test, fileInfo) {
+					return
+				}
+
+				assert.Equal(test, "path", fileInfo.Name())
+				assert.Equal(test, int64(7), fileInfo.Size())
+				assert.Equal(test, fs.FileMode(0664), fileInfo.Mode())
+				assert.WithinDuration(test, time.Now(), fileInfo.ModTime(), time.Hour)
+				assert.False(test, fileInfo.IsDir())
+			},
+			wantErr: func(test *testing.T, _ string, err error) {
+				assert.NoError(test, err)
+			},
+		},
+		{
+			name: "success/directory",
+			preparation: func(test *testing.T, tempDir string) {
+				path := filepath.Join(tempDir, "path")
+				err := os.Mkdir(path, 0700)
+				require.NoError(test, err)
+			},
+			args: args{
+				path: "path",
+			},
+			want: func(test *testing.T, fileInfo fs.FileInfo) {
+				if !assert.NotNil(test, fileInfo) {
+					return
+				}
+
+				assert.Equal(test, "path", fileInfo.Name())
+				assert.Equal(test, 0700|fs.ModeDir, fileInfo.Mode())
+				assert.WithinDuration(test, time.Now(), fileInfo.ModTime(), time.Hour)
+				assert.True(test, fileInfo.IsDir())
+			},
+			wantErr: func(test *testing.T, _ string, err error) {
+				assert.NoError(test, err)
+			},
+		},
+		{
+			name:        "error/invalid path",
+			preparation: func(_ *testing.T, _ string) {},
+			args: args{
+				path: "/invalid-path",
+			},
+			want: func(test *testing.T, fileInfo fs.FileInfo) {
+				assert.Nil(test, fileInfo)
+			},
+			wantErr: func(test *testing.T, _ string, err error) {
+				wantPath := "/invalid-path"
+				wantErr := &fs.PathError{Op: "stat", Path: wantPath, Err: fs.ErrInvalid}
+				assert.Equal(test, wantErr, err)
+			},
+		},
+		{
+			name:        "error/non-existent path",
+			preparation: func(_ *testing.T, _ string) {},
+			args: args{
+				path: "non-existent-path",
+			},
+			want: func(test *testing.T, fileInfo fs.FileInfo) {
+				assert.Nil(test, fileInfo)
+			},
+			wantErr: func(test *testing.T, tempDir string, err error) {
+				if !assert.IsType(test, (*fs.PathError)(nil), err) {
+					return
+				}
+
+				typedErr := err.(*fs.PathError)
+				assert.Equal(test, "stat", typedErr.Op)
+				assert.ErrorIs(test, typedErr.Err, fs.ErrNotExist)
+
+				wantPath := filepath.Join(tempDir, "/non-existent-path")
+				assert.Equal(test, wantPath, typedErr.Path)
+			},
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			tempDir, err := os.MkdirTemp("", "test-*")
+			require.NoError(test, err)
+			defer os.RemoveAll(tempDir)
+
+			data.preparation(test, tempDir)
+
+			dfs := NewDirFS(tempDir)
+			got, err := dfs.Stat(data.args.path)
 
 			data.want(test, got)
 			data.wantErr(test, tempDir, err)
