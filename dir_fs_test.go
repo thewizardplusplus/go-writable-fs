@@ -21,6 +21,10 @@ func TestNewDirFS(test *testing.T) {
 	assert.Equal(test, baseDir, got.baseDir)
 }
 
+func TestDirFS_interface(test *testing.T) {
+	assert.Implements(test, (*WritableFS)(nil), DirFS{})
+}
+
 func TestDirFS_Open(test *testing.T) {
 	type args struct {
 		path string
@@ -551,6 +555,239 @@ func TestDirFS_CreateExcl(test *testing.T) {
 			}
 
 			data.want(test, tempDir, got)
+			data.wantErr(test, err)
+		})
+	}
+}
+
+func TestDirFS_Rename(test *testing.T) {
+	type args struct {
+		oldPath string
+		newPath string
+	}
+
+	for _, data := range []struct {
+		name        string
+		preparation func(test *testing.T, tempDir string)
+		args        args
+		want        func(test *testing.T, tempDir string)
+		wantErr     func(test *testing.T, err error)
+	}{
+		{
+			name: "success/file/non-existent new path",
+			preparation: func(test *testing.T, tempDir string) {
+				oldPath := filepath.Join(tempDir, "old-path")
+				err := os.WriteFile(oldPath, []byte("content"), 0666)
+				require.NoError(test, err)
+			},
+			args: args{
+				oldPath: "old-path",
+				newPath: "new-path",
+			},
+			want: func(test *testing.T, tempDir string) {
+				oldPath := filepath.Join(tempDir, "old-path")
+				assert.NoFileExists(test, oldPath)
+
+				newPath := filepath.Join(tempDir, "new-path")
+				if !assert.FileExists(test, newPath) {
+					return
+				}
+
+				newPathStat, err := os.Stat(newPath)
+				if !assert.NoError(test, err) {
+					return
+				}
+				assert.Equal(test, fs.FileMode(0664), newPathStat.Mode())
+
+				newPathContent, err := os.ReadFile(newPath)
+				if !assert.NoError(test, err) {
+					return
+				}
+				assert.Equal(test, []byte("content"), newPathContent)
+			},
+			wantErr: func(test *testing.T, err error) {
+				assert.NoError(test, err)
+			},
+		},
+		{
+			name: "success/file/existent new path",
+			preparation: func(test *testing.T, tempDir string) {
+				oldPath := filepath.Join(tempDir, "old-path")
+				err := os.WriteFile(oldPath, []byte("old path content"), 0666)
+				require.NoError(test, err)
+
+				newPath := filepath.Join(tempDir, "new-path")
+				err = os.WriteFile(newPath, []byte("new path content"), 0600)
+				require.NoError(test, err)
+			},
+			args: args{
+				oldPath: "old-path",
+				newPath: "new-path",
+			},
+			want: func(test *testing.T, tempDir string) {
+				oldPath := filepath.Join(tempDir, "old-path")
+				assert.NoFileExists(test, oldPath)
+
+				newPath := filepath.Join(tempDir, "new-path")
+				if !assert.FileExists(test, newPath) {
+					return
+				}
+
+				newPathStat, err := os.Stat(newPath)
+				if !assert.NoError(test, err) {
+					return
+				}
+				assert.Equal(test, fs.FileMode(0664), newPathStat.Mode())
+
+				newPathContent, err := os.ReadFile(newPath)
+				if !assert.NoError(test, err) {
+					return
+				}
+				assert.Equal(test, []byte("old path content"), newPathContent)
+			},
+			wantErr: func(test *testing.T, err error) {
+				assert.NoError(test, err)
+			},
+		},
+		{
+			name: "success/directory/non-existent new path",
+			preparation: func(test *testing.T, tempDir string) {
+				oldDirPath := filepath.Join(tempDir, "old-path")
+				err := os.Mkdir(oldDirPath, 0700)
+				require.NoError(test, err)
+
+				oldFilePath := filepath.Join(oldDirPath, "path")
+				err = os.WriteFile(oldFilePath, []byte("content"), 0666)
+				require.NoError(test, err)
+			},
+			args: args{
+				oldPath: "old-path",
+				newPath: "new-path",
+			},
+			want: func(test *testing.T, tempDir string) {
+				oldDirPath := filepath.Join(tempDir, "old-path")
+				assert.NoDirExists(test, oldDirPath)
+
+				newDirPath := filepath.Join(tempDir, "new-path")
+				assert.DirExists(test, newDirPath)
+
+				newFilePath := filepath.Join(newDirPath, "path")
+				if !assert.FileExists(test, newFilePath) {
+					return
+				}
+
+				newFilePathStat, err := os.Stat(newFilePath)
+				if !assert.NoError(test, err) {
+					return
+				}
+				assert.Equal(test, fs.FileMode(0664), newFilePathStat.Mode())
+
+				newFilePathContent, err := os.ReadFile(newFilePath)
+				if !assert.NoError(test, err) {
+					return
+				}
+				assert.Equal(test, []byte("content"), newFilePathContent)
+			},
+			wantErr: func(test *testing.T, err error) {
+				assert.NoError(test, err)
+			},
+		},
+		{
+			name:        "error/invalid old path",
+			preparation: func(_ *testing.T, _ string) {},
+			args: args{
+				oldPath: "/invalid-old-path",
+				newPath: "new-path",
+			},
+			want: func(_ *testing.T, _ string) {},
+			wantErr: func(test *testing.T, err error) {
+				wantErr := &os.LinkError{
+					Op:  "rename",
+					Old: "/invalid-old-path",
+					New: "new-path",
+					Err: fs.ErrInvalid,
+				}
+				assert.Equal(test, wantErr, err)
+			},
+		},
+		{
+			name:        "error/invalid new path",
+			preparation: func(_ *testing.T, _ string) {},
+			args: args{
+				oldPath: "old-path",
+				newPath: "/invalid-new-path",
+			},
+			want: func(_ *testing.T, _ string) {},
+			wantErr: func(test *testing.T, err error) {
+				wantErr := &os.LinkError{
+					Op:  "rename",
+					Old: "old-path",
+					New: "/invalid-new-path",
+					Err: fs.ErrInvalid,
+				}
+				assert.Equal(test, wantErr, err)
+			},
+		},
+		{
+			name:        "error/non-existent old path",
+			preparation: func(_ *testing.T, _ string) {},
+			args: args{
+				oldPath: "non-existent-old-path",
+				newPath: "new-path",
+			},
+			want: func(_ *testing.T, _ string) {},
+			wantErr: func(test *testing.T, err error) {
+				if !assert.IsType(test, (*os.LinkError)(nil), err) {
+					return
+				}
+
+				typedErr := err.(*os.LinkError)
+				assert.Equal(test, "rename", typedErr.Op)
+				assert.Equal(test, "non-existent-old-path", typedErr.Old)
+				assert.Equal(test, "new-path", typedErr.New)
+				assert.ErrorIs(test, typedErr.Err, fs.ErrNotExist)
+			},
+		},
+		{
+			name: "error/directory/existent new path",
+			preparation: func(test *testing.T, tempDir string) {
+				oldPath := filepath.Join(tempDir, "old-path")
+				err := os.Mkdir(oldPath, 0700)
+				require.NoError(test, err)
+
+				newPath := filepath.Join(tempDir, "existent-new-path")
+				err = os.Mkdir(newPath, 0700)
+				require.NoError(test, err)
+			},
+			args: args{
+				oldPath: "old-path",
+				newPath: "existent-new-path",
+			},
+			want: func(_ *testing.T, _ string) {},
+			wantErr: func(test *testing.T, err error) {
+				if !assert.IsType(test, (*os.LinkError)(nil), err) {
+					return
+				}
+
+				typedErr := err.(*os.LinkError)
+				assert.Equal(test, "rename", typedErr.Op)
+				assert.Equal(test, "old-path", typedErr.Old)
+				assert.Equal(test, "existent-new-path", typedErr.New)
+				assert.ErrorIs(test, typedErr.Err, fs.ErrExist)
+			},
+		},
+	} {
+		test.Run(data.name, func(test *testing.T) {
+			tempDir, err := os.MkdirTemp("", "test-*")
+			require.NoError(test, err)
+			defer os.RemoveAll(tempDir)
+
+			data.preparation(test, tempDir)
+
+			dfs := NewDirFS(tempDir)
+			err = dfs.Rename(data.args.oldPath, data.args.newPath)
+
+			data.want(test, tempDir)
 			data.wantErr(test, err)
 		})
 	}

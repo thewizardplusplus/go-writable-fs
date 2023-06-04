@@ -83,6 +83,22 @@ func (dfs DirFS) CreateExcl(path string) (WritableFile, error) {
 	return file, nil
 }
 
+func (dfs DirFS) Rename(oldPath string, newPath string) error {
+	if err := checkPathsForRenaming(oldPath, newPath); err != nil {
+		return err
+	}
+
+	err := os.Rename(dfs.joinWithBaseDir(oldPath), dfs.joinWithBaseDir(newPath))
+	if err != nil {
+		// restore the original paths instead of their joined versions
+		updatePathsInLinkError(err, oldPath, newPath)
+
+		return err
+	}
+
+	return nil
+}
+
 func (dfs DirFS) Remove(path string) error {
 	if err := checkPath(path, "remove"); err != nil {
 		return err
@@ -109,14 +125,45 @@ func (dfs DirFS) joinWithBaseDir(path string) string {
 //	BSD 3-Clause "New" or "Revised" License
 //	Copyright (C) 2009 The Go Authors
 func checkPath(path string, operation string) error {
-	if !fs.ValidPath(path) ||
-		(runtime.GOOS == "windows" && strings.ContainsAny(path, `\:`)) {
+	if !isValidPath(path) {
 		return &fs.PathError{Op: operation, Path: path, Err: fs.ErrInvalid}
 	}
 
 	return nil
 }
 
+// This check is made for consistency with the implementation of `os.DirFS()`.
+//
+// # License
+//
+//	BSD 3-Clause "New" or "Revised" License
+//	Copyright (C) 2009 The Go Authors
+func checkPathsForRenaming(oldPath string, newPath string) error {
+	if !isValidPath(oldPath) || !isValidPath(newPath) {
+		innerErr := fs.ErrInvalid
+		return &os.LinkError{Op: "rename", Old: oldPath, New: newPath, Err: innerErr}
+	}
+
+	return nil
+}
+
+// This check is made for consistency with the implementation of `os.DirFS()`.
+//
+// # License
+//
+//	BSD 3-Clause "New" or "Revised" License
+//	Copyright (C) 2009 The Go Authors
+func isValidPath(path string) bool {
+	return fs.ValidPath(path) &&
+		(runtime.GOOS != "windows" || !strings.ContainsAny(path, `\:`))
+}
+
 func updatePathInPathError(err error, path string) {
 	err.(*fs.PathError).Path = path
+}
+
+func updatePathsInLinkError(err error, oldPath string, newPath string) {
+	typedErr := err.(*os.LinkError)
+	typedErr.Old = oldPath
+	typedErr.New = newPath
 }
