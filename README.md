@@ -30,6 +30,7 @@ The library that implements a writable file system.
     - uses package `github.com/stretchr/testify/mock` (see https://github.com/stretchr/testify);
     - is useful for mocking a writable file system;
 - the helper functions:
+  - function `fsutils.MkdirAll(wfs writablefs.WritableFS, path string, permissions fs.FileMode) error`;
   - function `fsutils.ReadDirEntriesByKind()` that reads a specified directory via function `fs.ReadDir` and selects entries with a specified kind (directory / not directory).
 
 ## Installation
