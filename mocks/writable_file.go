@@ -13,6 +13,14 @@ type WritableFile struct {
 	mock.Mock
 }
 
+type WritableFile_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *WritableFile) EXPECT() *WritableFile_Expecter {
+	return &WritableFile_Expecter{mock: &_m.Mock}
+}
+
 // Close provides a mock function with given fields:
 func (_m *WritableFile) Close() error {
 	ret := _m.Called()
@@ -25,6 +33,28 @@ func (_m *WritableFile) Close() error {
 	}
 
 	return r0
+}
+
+// WritableFile_Close_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Close'
+type WritableFile_Close_Call struct {
+	*mock.Call
+}
+
+// Close is a helper method to define mock.On call
+func (_e *WritableFile_Expecter) Close() *WritableFile_Close_Call {
+	return &WritableFile_Close_Call{Call: _e.mock.On("Close")}
+}
+
+func (_c *WritableFile_Close_Call) Run(run func()) *WritableFile_Close_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *WritableFile_Close_Call) Return(_a0 error) *WritableFile_Close_Call {
+	_c.Call.Return(_a0)
+	return _c
 }
 
 // Read provides a mock function with given fields: _a0
@@ -46,6 +76,29 @@ func (_m *WritableFile) Read(_a0 []byte) (int, error) {
 	}
 
 	return r0, r1
+}
+
+// WritableFile_Read_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Read'
+type WritableFile_Read_Call struct {
+	*mock.Call
+}
+
+// Read is a helper method to define mock.On call
+//   - _a0 []byte
+func (_e *WritableFile_Expecter) Read(_a0 interface{}) *WritableFile_Read_Call {
+	return &WritableFile_Read_Call{Call: _e.mock.On("Read", _a0)}
+}
+
+func (_c *WritableFile_Read_Call) Run(run func(_a0 []byte)) *WritableFile_Read_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]byte))
+	})
+	return _c
+}
+
+func (_c *WritableFile_Read_Call) Return(_a0 int, _a1 error) *WritableFile_Read_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
 }
 
 // Stat provides a mock function with given fields:
@@ -71,6 +124,28 @@ func (_m *WritableFile) Stat() (fs.FileInfo, error) {
 	return r0, r1
 }
 
+// WritableFile_Stat_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Stat'
+type WritableFile_Stat_Call struct {
+	*mock.Call
+}
+
+// Stat is a helper method to define mock.On call
+func (_e *WritableFile_Expecter) Stat() *WritableFile_Stat_Call {
+	return &WritableFile_Stat_Call{Call: _e.mock.On("Stat")}
+}
+
+func (_c *WritableFile_Stat_Call) Run(run func()) *WritableFile_Stat_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *WritableFile_Stat_Call) Return(_a0 fs.FileInfo, _a1 error) *WritableFile_Stat_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
 // Write provides a mock function with given fields: p
 func (_m *WritableFile) Write(p []byte) (int, error) {
 	ret := _m.Called(p)
@@ -90,6 +165,29 @@ func (_m *WritableFile) Write(p []byte) (int, error) {
 	}
 
 	return r0, r1
+}
+
+// WritableFile_Write_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Write'
+type WritableFile_Write_Call struct {
+	*mock.Call
+}
+
+// Write is a helper method to define mock.On call
+//   - p []byte
+func (_e *WritableFile_Expecter) Write(p interface{}) *WritableFile_Write_Call {
+	return &WritableFile_Write_Call{Call: _e.mock.On("Write", p)}
+}
+
+func (_c *WritableFile_Write_Call) Run(run func(p []byte)) *WritableFile_Write_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]byte))
+	})
+	return _c
+}
+
+func (_c *WritableFile_Write_Call) Return(n int, err error) *WritableFile_Write_Call {
+	_c.Call.Return(n, err)
+	return _c
 }
 
 type mockConstructorTestingTNewWritableFile interface {
