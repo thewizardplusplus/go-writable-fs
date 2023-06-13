@@ -39,7 +39,7 @@ func TestDirFS_Open(test *testing.T) {
 		preparation func(test *testing.T, tempDir string)
 		args        args
 		want        func(test *testing.T, file fs.File)
-		wantErr     func(test *testing.T, tempDir string, err error)
+		wantErr     func(test *testing.T, err error)
 	}{
 		{
 			name: "success",
@@ -63,7 +63,7 @@ func TestDirFS_Open(test *testing.T) {
 
 				assert.Equal(test, []byte("content"), content)
 			},
-			wantErr: func(test *testing.T, _ string, err error) {
+			wantErr: func(test *testing.T, err error) {
 				assert.NoError(test, err)
 			},
 		},
@@ -76,9 +76,9 @@ func TestDirFS_Open(test *testing.T) {
 			want: func(test *testing.T, file fs.File) {
 				assert.Nil(test, file)
 			},
-			wantErr: func(test *testing.T, _ string, err error) {
+			wantErr: func(test *testing.T, err error) {
 				wantPath := "/invalid-path"
-				wantErr := &fs.PathError{Op: "open", Path: wantPath, Err: fs.ErrInvalid}
+				wantErr := &fs.PathError{Op: "stat", Path: wantPath, Err: fs.ErrInvalid}
 				assert.Equal(test, wantErr, err)
 			},
 		},
@@ -91,7 +91,7 @@ func TestDirFS_Open(test *testing.T) {
 			want: func(test *testing.T, file fs.File) {
 				assert.Nil(test, file)
 			},
-			wantErr: func(test *testing.T, tempDir string, err error) {
+			wantErr: func(test *testing.T, err error) {
 				if !assert.IsType(test, (*fs.PathError)(nil), err) {
 					return
 				}
@@ -99,9 +99,7 @@ func TestDirFS_Open(test *testing.T) {
 				typedErr := err.(*fs.PathError)
 				assert.Equal(test, "open", typedErr.Op)
 				assert.ErrorIs(test, typedErr.Err, fs.ErrNotExist)
-
-				wantPath := filepath.Join(tempDir, "/non-existent-path")
-				assert.Equal(test, wantPath, typedErr.Path)
+				assert.Equal(test, "non-existent-path", typedErr.Path)
 			},
 		},
 	} {
@@ -119,7 +117,7 @@ func TestDirFS_Open(test *testing.T) {
 			}
 
 			data.want(test, got)
-			data.wantErr(test, tempDir, err)
+			data.wantErr(test, err)
 		})
 	}
 }
@@ -134,7 +132,7 @@ func TestDirFS_Stat(test *testing.T) {
 		preparation func(test *testing.T, tempDir string)
 		args        args
 		want        func(test *testing.T, fileInfo fs.FileInfo)
-		wantErr     func(test *testing.T, tempDir string, err error)
+		wantErr     func(test *testing.T, err error)
 	}{
 		{
 			name: "success/file",
@@ -157,7 +155,7 @@ func TestDirFS_Stat(test *testing.T) {
 				assert.WithinDuration(test, time.Now(), fileInfo.ModTime(), time.Hour)
 				assert.False(test, fileInfo.IsDir())
 			},
-			wantErr: func(test *testing.T, _ string, err error) {
+			wantErr: func(test *testing.T, err error) {
 				assert.NoError(test, err)
 			},
 		},
@@ -181,7 +179,7 @@ func TestDirFS_Stat(test *testing.T) {
 				assert.WithinDuration(test, time.Now(), fileInfo.ModTime(), time.Hour)
 				assert.True(test, fileInfo.IsDir())
 			},
-			wantErr: func(test *testing.T, _ string, err error) {
+			wantErr: func(test *testing.T, err error) {
 				assert.NoError(test, err)
 			},
 		},
@@ -194,7 +192,7 @@ func TestDirFS_Stat(test *testing.T) {
 			want: func(test *testing.T, fileInfo fs.FileInfo) {
 				assert.Nil(test, fileInfo)
 			},
-			wantErr: func(test *testing.T, _ string, err error) {
+			wantErr: func(test *testing.T, err error) {
 				wantPath := "/invalid-path"
 				wantErr := &fs.PathError{Op: "stat", Path: wantPath, Err: fs.ErrInvalid}
 				assert.Equal(test, wantErr, err)
@@ -209,7 +207,7 @@ func TestDirFS_Stat(test *testing.T) {
 			want: func(test *testing.T, fileInfo fs.FileInfo) {
 				assert.Nil(test, fileInfo)
 			},
-			wantErr: func(test *testing.T, tempDir string, err error) {
+			wantErr: func(test *testing.T, err error) {
 				if !assert.IsType(test, (*fs.PathError)(nil), err) {
 					return
 				}
@@ -217,9 +215,7 @@ func TestDirFS_Stat(test *testing.T) {
 				typedErr := err.(*fs.PathError)
 				assert.Equal(test, "stat", typedErr.Op)
 				assert.ErrorIs(test, typedErr.Err, fs.ErrNotExist)
-
-				wantPath := filepath.Join(tempDir, "/non-existent-path")
-				assert.Equal(test, wantPath, typedErr.Path)
+				assert.Equal(test, "non-existent-path", typedErr.Path)
 			},
 		},
 	} {
@@ -234,7 +230,7 @@ func TestDirFS_Stat(test *testing.T) {
 			got, err := dfs.Stat(data.args.path)
 
 			data.want(test, got)
-			data.wantErr(test, tempDir, err)
+			data.wantErr(test, err)
 		})
 	}
 }
