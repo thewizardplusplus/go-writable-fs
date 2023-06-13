@@ -14,6 +14,14 @@ type FileInfo struct {
 	mock.Mock
 }
 
+type FileInfo_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *FileInfo) EXPECT() *FileInfo_Expecter {
+	return &FileInfo_Expecter{mock: &_m.Mock}
+}
+
 // IsDir provides a mock function with given fields:
 func (_m *FileInfo) IsDir() bool {
 	ret := _m.Called()
@@ -26,6 +34,28 @@ func (_m *FileInfo) IsDir() bool {
 	}
 
 	return r0
+}
+
+// FileInfo_IsDir_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsDir'
+type FileInfo_IsDir_Call struct {
+	*mock.Call
+}
+
+// IsDir is a helper method to define mock.On call
+func (_e *FileInfo_Expecter) IsDir() *FileInfo_IsDir_Call {
+	return &FileInfo_IsDir_Call{Call: _e.mock.On("IsDir")}
+}
+
+func (_c *FileInfo_IsDir_Call) Run(run func()) *FileInfo_IsDir_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *FileInfo_IsDir_Call) Return(_a0 bool) *FileInfo_IsDir_Call {
+	_c.Call.Return(_a0)
+	return _c
 }
 
 // ModTime provides a mock function with given fields:
@@ -42,6 +72,28 @@ func (_m *FileInfo) ModTime() time.Time {
 	return r0
 }
 
+// FileInfo_ModTime_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ModTime'
+type FileInfo_ModTime_Call struct {
+	*mock.Call
+}
+
+// ModTime is a helper method to define mock.On call
+func (_e *FileInfo_Expecter) ModTime() *FileInfo_ModTime_Call {
+	return &FileInfo_ModTime_Call{Call: _e.mock.On("ModTime")}
+}
+
+func (_c *FileInfo_ModTime_Call) Run(run func()) *FileInfo_ModTime_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *FileInfo_ModTime_Call) Return(_a0 time.Time) *FileInfo_ModTime_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
 // Mode provides a mock function with given fields:
 func (_m *FileInfo) Mode() fs.FileMode {
 	ret := _m.Called()
@@ -54,6 +106,28 @@ func (_m *FileInfo) Mode() fs.FileMode {
 	}
 
 	return r0
+}
+
+// FileInfo_Mode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Mode'
+type FileInfo_Mode_Call struct {
+	*mock.Call
+}
+
+// Mode is a helper method to define mock.On call
+func (_e *FileInfo_Expecter) Mode() *FileInfo_Mode_Call {
+	return &FileInfo_Mode_Call{Call: _e.mock.On("Mode")}
+}
+
+func (_c *FileInfo_Mode_Call) Run(run func()) *FileInfo_Mode_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *FileInfo_Mode_Call) Return(_a0 fs.FileMode) *FileInfo_Mode_Call {
+	_c.Call.Return(_a0)
+	return _c
 }
 
 // Name provides a mock function with given fields:
@@ -70,6 +144,28 @@ func (_m *FileInfo) Name() string {
 	return r0
 }
 
+// FileInfo_Name_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Name'
+type FileInfo_Name_Call struct {
+	*mock.Call
+}
+
+// Name is a helper method to define mock.On call
+func (_e *FileInfo_Expecter) Name() *FileInfo_Name_Call {
+	return &FileInfo_Name_Call{Call: _e.mock.On("Name")}
+}
+
+func (_c *FileInfo_Name_Call) Run(run func()) *FileInfo_Name_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *FileInfo_Name_Call) Return(_a0 string) *FileInfo_Name_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
 // Size provides a mock function with given fields:
 func (_m *FileInfo) Size() int64 {
 	ret := _m.Called()
@@ -82,6 +178,28 @@ func (_m *FileInfo) Size() int64 {
 	}
 
 	return r0
+}
+
+// FileInfo_Size_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Size'
+type FileInfo_Size_Call struct {
+	*mock.Call
+}
+
+// Size is a helper method to define mock.On call
+func (_e *FileInfo_Expecter) Size() *FileInfo_Size_Call {
+	return &FileInfo_Size_Call{Call: _e.mock.On("Size")}
+}
+
+func (_c *FileInfo_Size_Call) Run(run func()) *FileInfo_Size_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *FileInfo_Size_Call) Return(_a0 int64) *FileInfo_Size_Call {
+	_c.Call.Return(_a0)
+	return _c
 }
 
 // Sys provides a mock function with given fields:
@@ -98,6 +216,28 @@ func (_m *FileInfo) Sys() interface{} {
 	}
 
 	return r0
+}
+
+// FileInfo_Sys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Sys'
+type FileInfo_Sys_Call struct {
+	*mock.Call
+}
+
+// Sys is a helper method to define mock.On call
+func (_e *FileInfo_Expecter) Sys() *FileInfo_Sys_Call {
+	return &FileInfo_Sys_Call{Call: _e.mock.On("Sys")}
+}
+
+func (_c *FileInfo_Sys_Call) Run(run func()) *FileInfo_Sys_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *FileInfo_Sys_Call) Return(_a0 interface{}) *FileInfo_Sys_Call {
+	_c.Call.Return(_a0)
+	return _c
 }
 
 type mockConstructorTestingTNewFileInfo interface {

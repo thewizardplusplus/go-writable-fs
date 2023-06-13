@@ -5,14 +5,14 @@ import (
 	"io/fs"
 )
 
-//go:generate mockery --name=WritableFile --case=underscore
+//go:generate mockery --name=WritableFile --case=underscore --with-expecter
 
 type WritableFile interface {
 	fs.File
 	io.Writer
 }
 
-//go:generate mockery --name=WritableFS --case=underscore
+//go:generate mockery --name=WritableFS --case=underscore --with-expecter
 
 type WritableFS interface {
 	fs.FS

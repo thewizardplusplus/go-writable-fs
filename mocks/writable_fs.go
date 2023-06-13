@@ -14,6 +14,14 @@ type WritableFS struct {
 	mock.Mock
 }
 
+type WritableFS_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *WritableFS) EXPECT() *WritableFS_Expecter {
+	return &WritableFS_Expecter{mock: &_m.Mock}
+}
+
 // Create provides a mock function with given fields: path
 func (_m *WritableFS) Create(path string) (writablefs.WritableFile, error) {
 	ret := _m.Called(path)
@@ -35,6 +43,29 @@ func (_m *WritableFS) Create(path string) (writablefs.WritableFile, error) {
 	}
 
 	return r0, r1
+}
+
+// WritableFS_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type WritableFS_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - path string
+func (_e *WritableFS_Expecter) Create(path interface{}) *WritableFS_Create_Call {
+	return &WritableFS_Create_Call{Call: _e.mock.On("Create", path)}
+}
+
+func (_c *WritableFS_Create_Call) Run(run func(path string)) *WritableFS_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *WritableFS_Create_Call) Return(_a0 writablefs.WritableFile, _a1 error) *WritableFS_Create_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
 }
 
 // CreateExcl provides a mock function with given fields: path
@@ -60,6 +91,29 @@ func (_m *WritableFS) CreateExcl(path string) (writablefs.WritableFile, error) {
 	return r0, r1
 }
 
+// WritableFS_CreateExcl_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateExcl'
+type WritableFS_CreateExcl_Call struct {
+	*mock.Call
+}
+
+// CreateExcl is a helper method to define mock.On call
+//   - path string
+func (_e *WritableFS_Expecter) CreateExcl(path interface{}) *WritableFS_CreateExcl_Call {
+	return &WritableFS_CreateExcl_Call{Call: _e.mock.On("CreateExcl", path)}
+}
+
+func (_c *WritableFS_CreateExcl_Call) Run(run func(path string)) *WritableFS_CreateExcl_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *WritableFS_CreateExcl_Call) Return(_a0 writablefs.WritableFile, _a1 error) *WritableFS_CreateExcl_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
 // Mkdir provides a mock function with given fields: path, permissions
 func (_m *WritableFS) Mkdir(path string, permissions fs.FileMode) error {
 	ret := _m.Called(path, permissions)
@@ -72,6 +126,30 @@ func (_m *WritableFS) Mkdir(path string, permissions fs.FileMode) error {
 	}
 
 	return r0
+}
+
+// WritableFS_Mkdir_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Mkdir'
+type WritableFS_Mkdir_Call struct {
+	*mock.Call
+}
+
+// Mkdir is a helper method to define mock.On call
+//   - path string
+//   - permissions fs.FileMode
+func (_e *WritableFS_Expecter) Mkdir(path interface{}, permissions interface{}) *WritableFS_Mkdir_Call {
+	return &WritableFS_Mkdir_Call{Call: _e.mock.On("Mkdir", path, permissions)}
+}
+
+func (_c *WritableFS_Mkdir_Call) Run(run func(path string, permissions fs.FileMode)) *WritableFS_Mkdir_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(fs.FileMode))
+	})
+	return _c
+}
+
+func (_c *WritableFS_Mkdir_Call) Return(_a0 error) *WritableFS_Mkdir_Call {
+	_c.Call.Return(_a0)
+	return _c
 }
 
 // Open provides a mock function with given fields: name
@@ -97,6 +175,29 @@ func (_m *WritableFS) Open(name string) (fs.File, error) {
 	return r0, r1
 }
 
+// WritableFS_Open_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Open'
+type WritableFS_Open_Call struct {
+	*mock.Call
+}
+
+// Open is a helper method to define mock.On call
+//   - name string
+func (_e *WritableFS_Expecter) Open(name interface{}) *WritableFS_Open_Call {
+	return &WritableFS_Open_Call{Call: _e.mock.On("Open", name)}
+}
+
+func (_c *WritableFS_Open_Call) Run(run func(name string)) *WritableFS_Open_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *WritableFS_Open_Call) Return(_a0 fs.File, _a1 error) *WritableFS_Open_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
 // Remove provides a mock function with given fields: path
 func (_m *WritableFS) Remove(path string) error {
 	ret := _m.Called(path)
@@ -111,6 +212,29 @@ func (_m *WritableFS) Remove(path string) error {
 	return r0
 }
 
+// WritableFS_Remove_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Remove'
+type WritableFS_Remove_Call struct {
+	*mock.Call
+}
+
+// Remove is a helper method to define mock.On call
+//   - path string
+func (_e *WritableFS_Expecter) Remove(path interface{}) *WritableFS_Remove_Call {
+	return &WritableFS_Remove_Call{Call: _e.mock.On("Remove", path)}
+}
+
+func (_c *WritableFS_Remove_Call) Run(run func(path string)) *WritableFS_Remove_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *WritableFS_Remove_Call) Return(_a0 error) *WritableFS_Remove_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
 // Rename provides a mock function with given fields: oldPath, newPath
 func (_m *WritableFS) Rename(oldPath string, newPath string) error {
 	ret := _m.Called(oldPath, newPath)
@@ -123,6 +247,30 @@ func (_m *WritableFS) Rename(oldPath string, newPath string) error {
 	}
 
 	return r0
+}
+
+// WritableFS_Rename_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Rename'
+type WritableFS_Rename_Call struct {
+	*mock.Call
+}
+
+// Rename is a helper method to define mock.On call
+//   - oldPath string
+//   - newPath string
+func (_e *WritableFS_Expecter) Rename(oldPath interface{}, newPath interface{}) *WritableFS_Rename_Call {
+	return &WritableFS_Rename_Call{Call: _e.mock.On("Rename", oldPath, newPath)}
+}
+
+func (_c *WritableFS_Rename_Call) Run(run func(oldPath string, newPath string)) *WritableFS_Rename_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *WritableFS_Rename_Call) Return(_a0 error) *WritableFS_Rename_Call {
+	_c.Call.Return(_a0)
+	return _c
 }
 
 type mockConstructorTestingTNewWritableFS interface {
