@@ -21,8 +21,12 @@ func TestNewDirFS(test *testing.T) {
 	assert.Equal(test, baseDir, got.baseDir)
 }
 
-func TestDirFS_interface(test *testing.T) {
+func TestDirFS_interfaceWritableFS(test *testing.T) {
 	assert.Implements(test, (*WritableFS)(nil), DirFS{})
+}
+
+func TestDirFS_interfaceStatFS(test *testing.T) {
+	assert.Implements(test, (*fs.StatFS)(nil), DirFS{})
 }
 
 func TestDirFS_Open(test *testing.T) {
