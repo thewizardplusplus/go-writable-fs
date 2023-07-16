@@ -31,6 +31,7 @@ The library that implements a writable file system.
     - is useful for mocking a writable file system;
 - the helper functions:
   - function `fsutils.MkdirAll(wfs writablefs.WritableFS, path string, permissions fs.FileMode) error`;
+  - function `fsutils.MkdirTemp(wfs writablefs.WritableFS, baseDir string, pathPattern string) (string, error)`;
   - function `fsutils.ReadDirEntriesByKind()` that reads a specified directory via function `fs.ReadDir` and selects entries with a specified kind (directory / not directory).
 
 ## Installation
